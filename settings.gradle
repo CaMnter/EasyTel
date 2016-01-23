@@ -1,1 +1,1 @@
-include ':easyTel'
+include ':easyTel', ':TMessagesProj'
