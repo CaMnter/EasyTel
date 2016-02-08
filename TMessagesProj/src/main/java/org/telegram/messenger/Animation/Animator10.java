@@ -21,7 +21,8 @@ import android.view.animation.Interpolator;
 import java.util.ArrayList;
 
 /**
- * 修改了 Android3.0的 Animator
+ * Android 19 以上的 Animator
+ * 动画基础支持的超类
  */
 public abstract class Animator10 implements Cloneable {
 

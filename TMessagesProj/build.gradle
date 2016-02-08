@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 11
         targetSdkVersion 23
         versionCode 719
         versionName "3.4.2"

@@ -23,19 +23,45 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Android 19 以上的 AnimatorSet
+ */
 public final class AnimatorSet10 extends Animator10 {
 
+    // 缓存正在播放的动画
     private ArrayList<Animator10> mPlayingSet = new ArrayList<>();
+
+    // 缓存 Animator10 和 Node 的关系
     private HashMap<Animator10, Node> mNodeMap = new HashMap<>();
+
+    // 缓存所有节点
     private ArrayList<Node> mNodes = new ArrayList<>();
+
+    // 缓存排序后的节点
     private ArrayList<Node> mSortedNodes = new ArrayList<>();
+
+    // 是否需要排序
     private boolean mNeedsSort = true;
+
+    // AnimatorSet10 的回调接口
     private AnimatorSetListener mSetListener = null;
+
+    // 是否终止
     boolean mTerminated = false;
+
+    // 是否开始
     private boolean mStarted = false;
+
+    // 开始延迟时间
     private long mStartDelay = 0;
+
+    // 延迟动画
     private ValueAnimator mDelayAnim = null;
+
+    // 持续时间
     private long mDuration = -1;
+
+    // 动画加速器
     private Interpolator mInterpolator = null;
 
     public void playTogether(Animator10... items) {
@@ -69,7 +95,7 @@ public final class AnimatorSet10 extends Animator10 {
                 play(items[0]);
             } else {
                 for (int i = 0; i < items.length - 1; ++i) {
-                    play(items[i]).before(items[i+1]);
+                    play(items[i]).before(items[i + 1]);
                 }
             }
         }
@@ -82,7 +108,7 @@ public final class AnimatorSet10 extends Animator10 {
                 play(items.get(0));
             } else {
                 for (int i = 0; i < items.size() - 1; ++i) {
-                    play(items.get(i)).before(items.get(i+1));
+                    play(items.get(i)).before(items.get(i + 1));
                 }
             }
         }
@@ -140,7 +166,7 @@ public final class AnimatorSet10 extends Animator10 {
             }
             if (mDelayAnim != null && mDelayAnim.isRunning()) {
                 mDelayAnim.cancel();
-            } else  if (mSortedNodes.size() > 0) {
+            } else if (mSortedNodes.size() > 0) {
                 for (Node node : mSortedNodes) {
                     node.animation.cancel();
                 }
@@ -335,9 +361,11 @@ public final class AnimatorSet10 extends Animator10 {
             mDelayAnim.setDuration(mStartDelay);
             mDelayAnim.addListener(new AnimatorListenerAdapter10() {
                 boolean canceled = false;
+
                 public void onAnimationCancel(Animator10 anim) {
                     canceled = true;
                 }
+
                 public void onAnimationEnd(Animator10 anim) {
                     if (!canceled) {
                         int numNodes = nodesToStart.size();
@@ -594,10 +622,19 @@ public final class AnimatorSet10 extends Animator10 {
         }
     }
 
+    /**
+     * 封装 Node 对象 及其相关信息和规则
+     */
     private static class Dependency {
+        // 依赖的Node必须和被依赖的Node一起启动
         static final int WITH = 0;
+
+        // 依赖的Node必须在被依赖的Node结束后启动
         static final int AFTER = 1;
+
         public Node node;
+
+        // WITH or AFTER
         public int rule;
 
         public Dependency(Node node, int rule) {
@@ -607,10 +644,18 @@ public final class AnimatorSet10 extends Animator10 {
     }
 
     private static class Node implements Cloneable {
+
+        // 该节点的动画
         public Animator10 animation;
+
+        // 该节点依赖信息集合
         public ArrayList<Dependency> dependencies = null;
         public ArrayList<Dependency> tmpDependencies = null;
+
+        // 该节点的依赖子集
         public ArrayList<Node> nodeDependencies = null;
+
+        // 该节点所依赖的节点集合
         public ArrayList<Node> nodeDependents = null;
         public boolean done = false;
 
@@ -619,21 +664,38 @@ public final class AnimatorSet10 extends Animator10 {
         }
 
         public void addDependency(Dependency dependency) {
+            // 如果依赖信息集合不存在，重新初始化
             if (dependencies == null) {
                 dependencies = new ArrayList<>();
                 nodeDependencies = new ArrayList<>();
             }
+            // 将依赖信息添加到集合里
             dependencies.add(dependency);
+
+            /*
+             * 判断依赖节点集合是否存在要添加的依赖节点
+             * 不存在就添加
+             */
             if (!nodeDependencies.contains(dependency.node)) {
                 nodeDependencies.add(dependency.node);
             }
+
+            // 拿到要添加的依赖节点
             Node dependencyNode = dependency.node;
+
+            // 判断要 添加的依赖节点的所依赖的节点集合 是否为空
             if (dependencyNode.nodeDependents == null) {
                 dependencyNode.nodeDependents = new ArrayList<>();
             }
+            // 给 添加的依赖节点的所依赖的节点集合 添加依赖(this)
             dependencyNode.nodeDependents.add(this);
         }
 
+        /**
+         * Node 的克隆方法
+         *
+         * @return Node
+         */
         @Override
         public Node clone() {
             try {
@@ -641,11 +703,28 @@ public final class AnimatorSet10 extends Animator10 {
                 node.animation = animation.clone();
                 return node;
             } catch (CloneNotSupportedException e) {
-               throw new AssertionError();
+                throw new AssertionError();
             }
         }
     }
 
+    /**
+     * <pre>
+     *     AnimatorSet s = new AnimatorSet();
+     *     s.play(anim1).with(anim2);
+     *     s.play(anim2).before(anim3);
+     *     s.play(anim4).after(anim3);
+     * </pre>
+     * <pre>
+     *   AnimatorSet s = new AnimatorSet();
+     *   s.play(anim1).before(anim2).before(anim3);
+     * </pre>
+     * <pre>
+     *   AnimatorSet s = new AnimatorSet();
+     *   s.play(anim1).before(anim2);
+     *   s.play(anim2).before(anim3);
+     * </pre>
+     */
     public class Builder {
 
         private Node mCurrentNode;

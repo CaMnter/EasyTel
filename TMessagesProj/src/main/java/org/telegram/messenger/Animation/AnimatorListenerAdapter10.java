@@ -16,6 +16,10 @@
 
 package org.telegram.messenger.Animation;
 
+/**
+ * Android 19 以上的 AnimatorListenerAdapter
+ * 只关心它的子类实现，自己不做默认实现
+ */
 public abstract class AnimatorListenerAdapter10 implements Animator10.AnimatorListener, Animator10.AnimatorPauseListener {
 
     @Override
