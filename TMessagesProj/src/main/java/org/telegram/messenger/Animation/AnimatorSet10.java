@@ -64,20 +64,56 @@ public final class AnimatorSet10 extends Animator10 {
     // 动画加速器
     private Interpolator mInterpolator = null;
 
+    /**
+     * 动画数组里的动画同时执行
+     *
+     * @param items items
+     */
     public void playTogether(Animator10... items) {
+        // 如果 动画数组 不为空
         if (items != null) {
+            // 标记为需要排序
             mNeedsSort = true;
+            /*
+             * 拿到第一个 动画 作为 Builder
+             * 剩下的 动画 只需要调用 Builder.with 让
+             * 动画数组里的动画 同时执行
+             */
             Builder builder = play(items[0]);
+            /*
+             * 拿到每个动画
+             * 调用Builder.with
+             * 设置上动画同时执行
+             */
             for (int i = 1; i < items.length; ++i) {
                 builder.with(items[i]);
             }
         }
     }
 
+    /**
+     * 动画集合里的动画同时执行
+     *
+     * @param items items
+     */
     public void playTogether(Collection<Animator10> items) {
+        /*
+         * 如果 动画集合 不为空
+         * 并且 动画集合 长度大于0
+         */
         if (items != null && items.size() > 0) {
+            // 标记为需要排序
             mNeedsSort = true;
             Builder builder = null;
+            /*
+             * 拿到每个 动画
+             * 如果第一个动画都没拿到
+             * 即 builder = null
+             * 需要 这是上 builder的值
+             * 否则 存在的话 就代表不是集合的第一个数据
+             * builder存在的话
+             * 就可以直接with
+             */
             for (Animator10 anim : items) {
                 if (builder == null) {
                     builder = play(anim);
@@ -88,12 +124,34 @@ public final class AnimatorSet10 extends Animator10 {
         }
     }
 
+    /**
+     * 按照动画数组的顺序
+     * 顺序播放动画
+     *
+     * @param items items
+     */
     public void playSequentially(Animator10... items) {
+        // 如果数组不为空
         if (items != null) {
+            // 标记为需要排序
             mNeedsSort = true;
+            /*
+             * 如果动画数组里只有一个动画
+             * 则 就直接调用 play 一次就可以了
+             */
             if (items.length == 1) {
                 play(items[0]);
             } else {
+                /*
+                 * 遍历 动画数组
+                 * 当前 索引 作为 play
+                 * 索引+1 作为 before
+                 * play:0 before:1
+                 * play:1 before:2
+                 * play:2 before:3
+                 * play:3 before:4
+                 * ...    ...
+                 */
                 for (int i = 0; i < items.length - 1; ++i) {
                     play(items[i]).before(items[i + 1]);
                 }
@@ -101,12 +159,37 @@ public final class AnimatorSet10 extends Animator10 {
         }
     }
 
+    /**
+     * 按照动画集合的顺序
+     * 顺序播放动画
+     *
+     * @param items items
+     */
     public void playSequentially(List<Animator10> items) {
+        /*
+         * 如果 集合 不为空
+         * 并且 集合 长度大于0
+         */
         if (items != null && items.size() > 0) {
+            // 标记为需要排序
             mNeedsSort = true;
+            /*
+             * 如果动画数组里只有一个动画
+             * 则 就直接调用 play 一次就可以了
+             */
             if (items.size() == 1) {
                 play(items.get(0));
             } else {
+                /*
+                 * 遍历 动画集合
+                 * 当前 索引 作为 play
+                 * 索引+1 作为 before
+                 * play:0 before:1
+                 * play:1 before:2
+                 * play:2 before:3
+                 * play:3 before:4
+                 * ...    ...
+                 */
                 for (int i = 0; i < items.size() - 1; ++i) {
                     play(items.get(i)).before(items.get(i + 1));
                 }
@@ -114,6 +197,11 @@ public final class AnimatorSet10 extends Animator10 {
         }
     }
 
+    /**
+     * 拿到 该 AnimatorSet10 的所有缓存Node数据
+     *
+     * @return ArrayList<Animator10>
+     */
     public ArrayList<Animator10> getChildAnimations() {
         ArrayList<Animator10> childList = new ArrayList<>();
         for (Node node : mNodes) {
@@ -122,10 +210,21 @@ public final class AnimatorSet10 extends Animator10 {
         return childList;
     }
 
+    /**
+     * 设置 Target 数据
+     *
+     * @param target target
+     */
     @Override
     public void setTarget(Object target) {
+        // 遍历 所有 Node 缓存数据
         for (Node node : mNodes) {
+            // 拿到 每个 Node 的 Animator10 对象
             Animator10 animation = node.animation;
+            /*
+             * 如果 Node 数据的 Animator10 对象类型属于
+             * AnimatorSet10 或者 ObjectAnimator10
+             */
             if (animation instanceof AnimatorSet10) {
                 animation.setTarget(target);
             } else if (animation instanceof ObjectAnimator10) {
@@ -134,52 +233,103 @@ public final class AnimatorSet10 extends Animator10 {
         }
     }
 
+    /**
+     * 给 AnimatorSet10 设置上 加速器
+     *
+     * @param interpolator interpolator
+     */
     @Override
     public void setInterpolator(Interpolator interpolator) {
         mInterpolator = interpolator;
     }
 
+    /**
+     * 拿到 该 AnimatorSet10 的加速器
+     *
+     * @return Interpolator
+     */
     @Override
     public Interpolator getInterpolator() {
         return mInterpolator;
     }
 
+    /**
+     * 拿到 Animator10 播放动画
+     * 初始化 Builder
+     *
+     * @param anim anim
+     * @return Builder
+     */
     public Builder play(Animator10 anim) {
+        // 如果动画不为空
         if (anim != null) {
+            // 标记为需要排序
             mNeedsSort = true;
+            // 返回一个 新的 Builder
             return new Builder(anim);
         }
         return null;
     }
 
+    /**
+     * 取消
+     */
     @SuppressWarnings("unchecked")
     @Override
     public void cancel() {
+        // 标记为终止
         mTerminated = true;
+        // 如果 动画 已经开始了
         if (isStarted()) {
             ArrayList<AnimatorListener> tmpListeners = null;
+            // 并且 缓存 AnimatorListener 集合 不为空
             if (mListeners != null) {
+                // 克隆一份 缓存 AnimatorListener 集合数据
                 tmpListeners = (ArrayList<AnimatorListener>) mListeners.clone();
+                /*
+                 * 然后遍历AnimatorListener
+                 * 拿到 AnimatorListener
+                 * 调用其回调 AnimatorListener.onAnimationCancel
+                 */
                 for (AnimatorListener listener : tmpListeners) {
                     listener.onAnimationCancel(this);
                 }
             }
+            /*
+             * 如果 延迟动画 不为空
+             * 并且 延迟动画 正在运行
+             */
             if (mDelayAnim != null && mDelayAnim.isRunning()) {
+                // 调用延迟动画（ ValueAnimator ）的cancel
                 mDelayAnim.cancel();
             } else if (mSortedNodes.size() > 0) {
+                /*
+                 * 遍历 缓存排序后的节点
+                 * 逐个调用其cancel回调
+                 */
                 for (Node node : mSortedNodes) {
                     node.animation.cancel();
                 }
             }
+            // 缓存 AnimatorListener 集合数据 不为空
             if (tmpListeners != null) {
+                /*
+                 * 然后遍历AnimatorListener
+                 * 拿到 AnimatorListener
+                 * 调用其回调 AnimatorListener.onAnimationEnd
+                 */
                 for (AnimatorListener listener : tmpListeners) {
                     listener.onAnimationEnd(this);
                 }
             }
+            // 标记为没有开始
             mStarted = false;
         }
     }
 
+    /**
+     *
+     */
     @SuppressWarnings("unchecked")
     @Override
     public void end() {
@@ -213,6 +363,9 @@ public final class AnimatorSet10 extends Animator10 {
         }
     }
 
+    /**
+     * @return boolean
+     */
     @Override
     public boolean isRunning() {
         for (Node node : mNodes) {
@@ -730,53 +883,97 @@ public final class AnimatorSet10 extends Animator10 {
         private Node mCurrentNode;
 
         Builder(Animator10 anim) {
+            /*
+             * 根据 Animator10 去拿到Map数据里 Node 的缓存数据
+             * 然后放入 mCurrentNode 里
+             */
             mCurrentNode = mNodeMap.get(anim);
+            // 如果 Node 缓存数据 不存在
             if (mCurrentNode == null) {
+                // 根据 Animator10 初始化一个新的 Node 数据
                 mCurrentNode = new Node(anim);
+                // Node 节点存入缓存数据里 HashMap<Animator10, Node>
                 mNodeMap.put(anim, mCurrentNode);
+                // Node 节点存入缓存数据里 ArrayList<Node>
                 mNodes.add(mCurrentNode);
             }
         }
 
         public Builder with(Animator10 anim) {
+            // 根据 Animator10 去拿到Map数据里 Node 的缓存数据
             Node node = mNodeMap.get(anim);
+            // 如果 Node 缓存数据存在
             if (node == null) {
+                // 根据 Animator10 初始化一个新的 Node 数据
                 node = new Node(anim);
+                // Node 节点存入缓存数据里 HashMap<Animator10, Node>
                 mNodeMap.put(anim, node);
+                // Node 节点存入缓存数据里 ArrayList<Node>
                 mNodes.add(node);
             }
+            /*
+             * 由于是 with 方法
+             * 所以 Dependency.rule ＝ Dependency.WITH
+             * 初始化一个 新的 Dependency 包装该 Node 节点
+             */
             Dependency dependency = new Dependency(mCurrentNode, Dependency.WITH);
+            // 添加 Dependency 到缓存数据中
             node.addDependency(dependency);
             return this;
         }
 
         public Builder before(Animator10 anim) {
+            // 根据 Animator10 去拿到Map数据里 Node 的缓存数据
             Node node = mNodeMap.get(anim);
+            // 如果 Node 缓存数据存在
             if (node == null) {
+                // 根据 Animator10 初始化一个新的 Node 数据
                 node = new Node(anim);
+                // Node 节点存入缓存数据里 HashMap<Animator10, Node>
                 mNodeMap.put(anim, node);
+                // Node 节点存入缓存数据里 ArrayList<Node>
                 mNodes.add(node);
             }
+            /*
+             * before 方法
+             * 所以 Dependency.rule ＝ Dependency.AFTER
+             * 初始化一个 新的 Dependency 包装该 Node 节点
+             */
             Dependency dependency = new Dependency(mCurrentNode, Dependency.AFTER);
+            // 添加 Dependency 到缓存数据中
             node.addDependency(dependency);
             return this;
         }
 
         public Builder after(Animator10 anim) {
+            // 根据 Animator10 去拿到Map数据里 Node 的缓存数据
             Node node = mNodeMap.get(anim);
+            // 如果 Node 缓存数据存在
             if (node == null) {
+                // 根据 Animator10 初始化一个新的 Node 数据
                 node = new Node(anim);
+                // Node 节点存入缓存数据里 HashMap<Animator10, Node>
                 mNodeMap.put(anim, node);
+                // Node 节点存入缓存数据里 ArrayList<Node>
                 mNodes.add(node);
             }
+            /*
+             * after 方法
+             * 所以 Dependency.rule ＝ Dependency.AFTER
+             * 初始化一个 新的 Dependency 包装该 Node 节点
+             */
             Dependency dependency = new Dependency(node, Dependency.AFTER);
+            // 添加 Dependency 到缓存数据中
             mCurrentNode.addDependency(dependency);
             return this;
         }
 
         public Builder after(long delay) {
+            // 初始化一个 ValueAnimator
             ValueAnimator anim = ValueAnimator.ofFloat(0f, 1f);
+            // 设置上延迟
             anim.setDuration(delay);
+            // 调用 after 方法
             after(anim);
             return this;
         }
