@@ -64,7 +64,7 @@ public abstract class Animator10 implements Cloneable {
     public abstract long getDuration();
 
     /**
-     * 设置加速器
+     * 设置插入器
      *
      * @param value value
      */
@@ -106,8 +106,13 @@ public abstract class Animator10 implements Cloneable {
         if (isStarted() && !mPaused) {
             mPaused = true;
             if (mPauseListeners != null) {
+                // 克隆一份 mPauseListeners 数据
                 ArrayList<AnimatorPauseListener> tmpListeners = (ArrayList<AnimatorPauseListener>) mPauseListeners.clone();
                 int numListeners = tmpListeners.size();
+                /*
+                 * 拿到 mPauseListeners 集合里的Listener
+                 * 并且调用其onAnimationPause回调
+                 */
                 for (AnimatorPauseListener tmpListener : tmpListeners) {
                     tmpListener.onAnimationPause(this);
                 }
@@ -123,8 +128,13 @@ public abstract class Animator10 implements Cloneable {
         if (mPaused) {
             mPaused = false;
             if (mPauseListeners != null) {
+                // 克隆一份 mPauseListeners 数据
                 ArrayList<AnimatorPauseListener> tmpListeners = (ArrayList<AnimatorPauseListener>) mPauseListeners.clone();
                 int numListeners = tmpListeners.size();
+                /*
+                 * 拿到 mPauseListeners 集合里的Listener
+                 * 并且调用其onAnimationResume回调
+                 */
                 for (AnimatorPauseListener tmpListener : tmpListeners) {
                     tmpListener.onAnimationResume(this);
                 }
@@ -151,7 +161,7 @@ public abstract class Animator10 implements Cloneable {
     }
 
     /**
-     * 获得加速器
+     * 获得插入器
      * 默认为null
      *
      * @return Interpolator
