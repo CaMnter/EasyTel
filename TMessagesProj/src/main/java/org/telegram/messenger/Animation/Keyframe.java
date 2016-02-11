@@ -18,67 +18,160 @@ package org.telegram.messenger.Animation;
 
 import android.view.animation.Interpolator;
 
+/**
+ * Android 14 以上的 Keyframe
+ * 这个类持有时间/值对一个动画,Keyframe被ValueAnimator类用来定义动画目标将要超过动画的值
+ * 随着时间的进行从一个Keyframe,目标对象的值将在前一个Keyframe动画之间的价值和价值下一个Keyframe
+ * Keyframe还可以定义 Interpolator 插值
+ */
 public abstract class Keyframe implements Cloneable {
 
+    // 分数 mValue使用的时间
     float mFraction;
+
+    // Keyframe的类型
     Class mValueType;
+
+    // 设置插入器,默认是线性插入器
     private Interpolator mInterpolator = null;
+
+    // 标志 Keyframe 是否是一个有效值
     boolean mHasValue = false;
 
+    /**
+     * @param fraction 表示为一个值在0和1之间,代表整个动画的时间分数的持续时间
+     * @param value    该对象将动画来作为动画时间接近的时间在此关键帧的值，并且从作为时间的推移在这个关键帧中的时间的动画的值
+     * @return IntKeyframe
+     */
     public static Keyframe ofInt(float fraction, int value) {
         return new IntKeyframe(fraction, value);
     }
 
+    /**
+     * @param fraction 表示为一个值在0和1之间,代表整个动画的时间分数的持续时间
+     * @return IntKeyframe
+     */
     public static Keyframe ofInt(float fraction) {
         return new IntKeyframe(fraction);
     }
 
+    /**
+     * @param fraction 表示为一个值在0和1之间,代表整个动画的时间分数的持续时间
+     * @param value    该对象将动画来作为动画时间接近的时间在此关键帧的值，并且从作为时间的推移在这个关键帧中的时间的动画的值
+     * @return FloatKeyframe
+     */
     public static Keyframe ofFloat(float fraction, float value) {
         return new FloatKeyframe(fraction, value);
     }
 
+    /**
+     * @param fraction 表示为一个值在0和1之间,代表整个动画的时间分数的持续时间
+     * @return FloatKeyframe
+     */
     public static Keyframe ofFloat(float fraction) {
         return new FloatKeyframe(fraction);
     }
 
+    /**
+     * @param fraction 表示为一个值在0和1之间,代表整个动画的时间分数的持续时间
+     * @param value    该对象将动画来作为动画时间接近的时间在此关键帧的值，并且从作为时间的推移在这个关键帧中的时间的动画的值
+     * @return ObjectKeyframe
+     */
     public static Keyframe ofObject(float fraction, Object value) {
         return new ObjectKeyframe(fraction, value);
     }
 
+    /**
+     * @param fraction 表示为一个值在0和1之间,代表整个动画的时间分数的持续时间
+     * @return ObjectKeyframe
+     */
     public static Keyframe ofObject(float fraction) {
         return new ObjectKeyframe(fraction, null);
     }
 
+    /**
+     * 返回 有效值 标记
+     *
+     * @return boolean
+     */
     public boolean hasValue() {
         return mHasValue;
     }
 
+    /**
+     * 抽象方法
+     * 让子类获取Value的值
+     *
+     * @return Object
+     */
     public abstract Object getValue();
+
+    /**
+     * 抽象方法
+     * 让子类去设置Value的值
+     *
+     * @param value Object
+     */
     public abstract void setValue(Object value);
 
+    /**
+     * 设置动画的时间分数的持续时间
+     *
+     * @return float
+     */
     public float getFraction() {
         return mFraction;
     }
 
+    /**
+     * 设置动画的时间分数的持续时间
+     *
+     * @param fraction fraction
+     */
     public void setFraction(float fraction) {
         mFraction = fraction;
     }
 
+    /**
+     * 获取该 Keyframe 的插入器
+     *
+     * @return
+     */
     public Interpolator getInterpolator() {
         return mInterpolator;
     }
 
+    /**
+     * 设置该 Keyframe 的插入器
+     *
+     * @param interpolator interpolator
+     */
     public void setInterpolator(Interpolator interpolator) {
         mInterpolator = interpolator;
     }
 
+    /**
+     * 获取 Keyframe 的类型
+     *
+     * @return Class
+     */
     public Class getType() {
         return mValueType;
     }
 
+    /**
+     * 抽象方法
+     * 让子类去实现 对应子类的 克隆方法
+     *
+     * @return Keyframe
+     */
     @Override
     public abstract Keyframe clone();
 
+    /**
+     * Keyframe的一个内部实现类
+     * 用于除了 int 或者 float 之外的情景
+     */
     static class ObjectKeyframe extends Keyframe {
 
         Object mValue;
@@ -107,6 +200,10 @@ public abstract class Keyframe implements Cloneable {
         }
     }
 
+    /**
+     * Keyframe的一个内部实现类
+     * 用于 int
+     */
     static class IntKeyframe extends Keyframe {
 
         int mValue;
@@ -146,6 +243,10 @@ public abstract class Keyframe implements Cloneable {
         }
     }
 
+    /**
+     * Keyframe的一个内部实现类
+     * 用于 float
+     */
     static class FloatKeyframe extends Keyframe {
 
         float mValue;
