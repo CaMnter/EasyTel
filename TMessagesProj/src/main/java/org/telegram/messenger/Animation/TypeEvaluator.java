@@ -16,6 +16,21 @@
 
 package org.telegram.messenger.Animation;
 
+/**
+ * Android 11 以上的 TypeEvaluator
+ * <p/>
+ * 其实例对象提供给{@link ValueAnimator#setEvaluator(TypeEvaluator)}方法设置上
+ * Evaluators允许开发者创建任意属性类型的动画
+ * 并且允许它们支持自定义类型Evaluators
+ *
+ * @param <T> T
+ */
 public interface TypeEvaluator<T> {
+    /**
+     * @param fraction 从开始到结束的分数值
+     * @param startValue 开始值
+     * @param endValue   结束值
+     * @return T 返回一个在startValue和endValue之间的线性插值
+     */
     T evaluate(float fraction, T startValue, T endValue);
 }

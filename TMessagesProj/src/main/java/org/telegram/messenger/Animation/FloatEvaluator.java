@@ -16,9 +16,20 @@
 
 package org.telegram.messenger.Animation;
 
+/**
+ * Android 11 以上的 FloatEvaluator
+ * 用于执行float之间的插值
+ */
 public class FloatEvaluator implements TypeEvaluator<Number> {
+    /**
+     * @param fraction   从开始到结束的分数值
+     * @param startValue float开始值
+     * @param endValue   float结束值
+     * @return Float 返回一个在startValue和endValue之间的线性插值
+     */
     public Float evaluate(float fraction, Number startValue, Number endValue) {
         float startFloat = startValue.floatValue();
+        // start + fraction * ( end - start )
         return startFloat + fraction * (endValue.floatValue() - startFloat);
     }
 }

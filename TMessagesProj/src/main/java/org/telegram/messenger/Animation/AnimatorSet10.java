@@ -478,7 +478,7 @@ public final class AnimatorSet10 extends Animator10 {
     }
 
     /**
-     *
+     * 动画暂停
      */
     @Override
     public void pause() {

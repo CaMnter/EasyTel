@@ -17,8 +17,15 @@
 package org.telegram.messenger.Animation;
 
 public class IntEvaluator implements TypeEvaluator<Integer> {
+    /**
+     * @param fraction   从开始到结束的分数值
+     * @param startValue int开始值
+     * @param endValue   int结束值
+     * @return Integer 返回一个在startValue和endValue之间的线性插值
+     */
     public Integer evaluate(float fraction, Integer startValue, Integer endValue) {
         int startInt = startValue;
-        return (int)(startInt + fraction * (endValue - startInt));
+        // start + fraction * ( end - start )
+        return (int) (startInt + fraction * (endValue - startInt));
     }
 }
