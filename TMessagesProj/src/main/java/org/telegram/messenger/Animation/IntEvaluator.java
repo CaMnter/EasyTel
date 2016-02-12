@@ -16,6 +16,9 @@
 
 package org.telegram.messenger.Animation;
 
+/**
+ * Android 11 以上的 IntEvaluator
+ */
 public class IntEvaluator implements TypeEvaluator<Integer> {
     /**
      * @param fraction   从开始到结束的分数值
