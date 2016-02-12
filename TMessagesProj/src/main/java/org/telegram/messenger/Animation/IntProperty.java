@@ -15,14 +15,32 @@
  */
 package org.telegram.messenger.Animation;
 
+/**
+ * 处理 Integer 类型的 Property
+ *
+ * @param <T>
+ */
 public abstract class IntProperty<T> extends Property<T, Integer> {
 
     public IntProperty(String name) {
         super(Integer.class, name);
     }
 
+    /**
+     * 让子类去实现 setValue 的逻辑
+     *
+     * @param object object
+     * @param value  value
+     */
     public abstract void setValue(T object, int value);
 
+    /**
+     * 实现了 Integer 的逻辑
+     * 不可让子类覆写了
+     *
+     * @param object object
+     * @param value  value
+     */
     @Override
     final public void set(T object, Integer value) {
         setValue(object, value.intValue());

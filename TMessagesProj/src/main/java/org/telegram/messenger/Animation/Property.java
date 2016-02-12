@@ -15,34 +15,87 @@
  */
 package org.telegram.messenger.Animation;
 
+/**
+ * Android 14 以上的 Property
+ *
+ * @param <T>
+ * @param <V>
+ */
 public abstract class Property<T, V> {
 
     private final String mName;
     private final Class<V> mType;
 
+    /**
+     * 构造一个 ReflectiveProperty 对象
+     *
+     * @param hostType  hostType
+     * @param valueType valueType
+     * @param name      name
+     * @param <T>       T
+     * @param <V>       V
+     * @return Property
+     */
     public static <T, V> Property<T, V> of(Class<T> hostType, Class<V> valueType, String name) {
         return new ReflectiveProperty<T, V>(hostType, valueType, name);
     }
 
+    /**
+     * 构造方法
+     * 需要 类型 和 名称
+     *
+     * @param type type
+     * @param name name
+     */
     public Property(Class<V> type, String name) {
         mName = name;
         mType = type;
     }
 
+    /**
+     * 设置是否 只读
+     * 默认实现为 false
+     *
+     * @return boolean
+     */
     public boolean isReadOnly() {
         return false;
     }
 
+    /**
+     * 设置 值
+     * 默认是不可设置的
+     * 抛出异常
+     *
+     * @param object object
+     * @param value  value
+     */
     public void set(T object, V value) {
-        throw new UnsupportedOperationException("Property " + getName() +" is read-only");
+        throw new UnsupportedOperationException("Property " + getName() + " is read-only");
     }
 
+    /**
+     * 让子类去实现该 get 方法
+     *
+     * @param object object
+     * @return V V
+     */
     public abstract V get(T object);
 
+    /**
+     * 获取名称
+     *
+     * @return String
+     */
     public String getName() {
         return mName;
     }
 
+    /**
+     * 获取类型
+     *
+     * @return Class<V>
+     */
     public Class<V> getType() {
         return mType;
     }
