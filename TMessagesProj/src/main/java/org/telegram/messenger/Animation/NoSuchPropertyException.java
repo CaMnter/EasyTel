@@ -15,6 +15,11 @@
  */
 package org.telegram.messenger.Animation;
 
+/**
+ * Android 14 以上的 NoSuchPropertyException
+ * 自定义 No Such Property Exception
+ * 在ReflectiveProperty的实例方法内抛出
+ */
 public class NoSuchPropertyException extends RuntimeException {
 
     public NoSuchPropertyException(String s) {
