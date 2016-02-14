@@ -27,12 +27,25 @@ import android.view.animation.Transformation;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
+/**
+ * A proxy class to allow for modifying post-3.0 view properties on all pre-3.0
+ * platforms. <strong>DO NOT</strong> wrap your views with this class if you
+ * are using {@code ObjectAnimator} as it will handle that itself.
+ */
 public class View10 extends Animation {
-
+    /** Whether or not the current running platform needs to be proxied. */
     public static boolean NEED_PROXY = Build.VERSION.SDK_INT < 11;
 
     private static final WeakHashMap<View, View10> PROXIES = new WeakHashMap<>();
 
+    /**
+     * Create a proxy to allow for modifying post-3.0 view properties on all
+     * pre-3.0 platforms. <strong>DO NOT</strong> wrap your views if you are
+     * using {@code ObjectAnimator} as it will handle that itself.
+     *
+     * @param view View to wrap.
+     * @return Proxy to post-3.0 properties.
+     */
     public static View10 wrap(View view) {
         View10 proxy = PROXIES.get(view);
         Animation animation = view.getAnimation();
