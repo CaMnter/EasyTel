@@ -16,6 +16,7 @@
 package org.telegram.messenger.Animation;
 
 /**
+ * Android 14 以上的 FloatProperty10
  * 处理 Float 类型的 Property
  *
  * @param <T>

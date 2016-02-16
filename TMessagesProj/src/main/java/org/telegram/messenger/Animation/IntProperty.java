@@ -16,6 +16,7 @@
 package org.telegram.messenger.Animation;
 
 /**
+ * Android 14 以上的 IntProperty
  * 处理 Integer 类型的 Property
  *
  * @param <T>

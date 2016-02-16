@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * Android 14 以上的 KeyframeSet
  * 这个类持有Keyframe对象的集合
  * 并且被ValueAnimator调用来计算那些Keyframes之间给定动画的值
  * 这个类的内部进行动画包装

@@ -81,18 +81,30 @@ public class View10 extends Animation {
     // 标记 是否设置了 Pivot 相关值
     private boolean mHasPivot;
 
+    // 记录 透明度
     private float mAlpha = 1;
+    // 记录 PivotX 值
     private float mPivotX;
+    // 记录 PivotY 值
     private float mPivotY;
+    // 记录 RotationX 值
     private float mRotationX;
+    // 记录 RotationY 值
     private float mRotationY;
+    // 记录 RotationZ 值
     private float mRotationZ;
+    // 记录 ScaleX 值
     private float mScaleX = 1;
+    // 记录 ScaleY 值
     private float mScaleY = 1;
+    // 记录 TranslationX 值
     private float mTranslationX;
+    // 记录 TranslationY 值
     private float mTranslationY;
 
+    // 缓存 prepareForUpdate 操作的 RectF数据
     private final RectF mBefore = new RectF();
+    // 缓存 invalidateAfterUpdate 操作的 RectF数据
     private final RectF mAfter = new RectF();
     private final Matrix mTempMatrix = new Matrix();
 
@@ -549,7 +561,7 @@ public class View10 extends Animation {
         m.reset();
         // 变换矩形
         transformMatrix(m, view);
-        //
+        // 将矩阵应用到 矩形中
         mTempMatrix.mapRect(r);
         // 设置
         r.offset(view.getLeft(), view.getTop());
