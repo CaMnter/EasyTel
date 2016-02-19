@@ -28,49 +28,136 @@ import org.telegram.messenger.AndroidUtilities;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Android 19 以上的 ValueAnimator
+ */
 public class ValueAnimator extends Animator10 {
 
+    // 动画持续时间 幅度比例
     private static float sDurationScale = 1.0f;
-    static final int STOPPED    = 0;
-    static final int RUNNING    = 1;
-    static final int SEEKED     = 2;
 
+    /*
+     * mPlayingState 的 三种状态
+     * STOPPED = 还没用播放
+     * RUNNING = 正常播放
+     * SEEKED = 跳跃到一定值后继续播放
+     */
+    static final int STOPPED = 0;
+    static final int RUNNING = 1;
+    static final int SEEKED = 2;
+
+    // 动画的第一次animateFrame()方法被调用
+    // 这个时间是用来确定运行时间(因此经过分数)在随后的调用animateFrame()
     long mStartTime;
+
+    // 当setCurrentPlayTime()被调用时就被设置上
     long mSeekTime = -1;
+
+    /*
+     * API 19 新增属性
+     * 记录 下一祯 后 暂停时间
+     * 用于计算 开始时间 或者 delayStartTime 时间
+     */
     private long mPauseTime;
+
+    // 记录 动画 是否需要 恢复
     private boolean mResumed = false;
+
+    // 所有动画都基于 静态的sAnimationHandler进程内部定时循环
     protected static ThreadLocal<AnimationHandler> sAnimationHandler = new ThreadLocal<AnimationHandler>();
+
+    // 如果没有设置动画
+    // 则使用sDefaultInterpolator
     private static final Interpolator sDefaultInterpolator = new AccelerateDecelerateInterpolator();
+
+    // 用于指示动画当前是否反向播放
+    // 会导致运行分数是反向计算适当的值
     private boolean mPlayingBackwards = false;
+
+    // 用于跟踪迭代标记
+    // 当mCurrentIteration超过repeatCount(如果repeatCount ! =无限),动画结束
     private int mCurrentIteration = 0;
+
+    // 在 getAnimatedFraction 时 被调用
     private float mCurrentFraction = 0f;
+
+    // 标记动画开始是否有 延迟
     private boolean mStartedDelay = false;
+
+    // 记录动画开始的 延迟时间
     private long mDelayStartTime;
+
+    // mPlayingState 记录当前播放状态
+    // 默认状态是STOPPED
     int mPlayingState = STOPPED;
+
+    // 标记 是否正在运行
     private boolean mRunning = false;
+
+    // 标记 是否已经开始
     private boolean mStarted = false;
+
+    // 标记 动画开始回调是否被调用
     private boolean mStartListenersCalled = false;
+
+    // 标记 是否初始化
     boolean mInitialized = false;
 
-    private long mDuration = (long)(300 * sDurationScale);
+    // 记录 动画 持续时间
+    private long mDuration = (long) (300 * sDurationScale);
+
+    // 记录 不按比例 持续时间
     private long mUnscaledDuration = 300;
+
+    // 记录 动画开始 延迟时间
     private long mStartDelay = 0;
+
+    // 记录 不按比例 延迟时间
     private long mUnscaledStartDelay = 0;
+
+    // 记录 动画重复 次数
     private int mRepeatCount = 0;
+
+    // 记录 动画重复 模式
     private int mRepeatMode = RESTART;
+
+    // 动画的运行部分将通过插入器内插计算分数
+    // 然后用于计算动画值
     private Interpolator mInterpolator = sDefaultInterpolator;
+
+    // 通过动画的生命周期 发送事件 到对应的 AnimatorUpdateListener
     private ArrayList<AnimatorUpdateListener> mUpdateListeners = null;
+
+    // PropertyValuesHolder 数组
     PropertyValuesHolder[] mValues;
+
+    // 在 getAnimatedValue(String) 方法里被调用
+    // 用于查找对应的PropertyValuesHolder
     HashMap<String, PropertyValuesHolder> mValuesMap;
 
+    // 重复模式 重新开始
     public static final int RESTART = 1;
+
+    // 重复模式 反向播放
     public static final int REVERSE = 2;
+
+    // 重复模式 无限循环
     public static final int INFINITE = -1;
 
+    /**
+     * 设置 动画持续时间 幅度比例
+     *
+     * @param durationScale durationScale
+     */
     public static void setDurationScale(float durationScale) {
         sDurationScale = durationScale;
     }
 
+    /**
+     * 获取 动画持续时间 幅度比例
+     *
+     * @return float
+     */
     public static float getDurationScale() {
         return sDurationScale;
     }
@@ -79,12 +166,20 @@ public class ValueAnimator extends Animator10 {
 
     }
 
+    /**
+     * @param values values
+     * @return ValueAnimator
+     */
     public static ValueAnimator ofInt(int... values) {
         ValueAnimator anim = new ValueAnimator();
         anim.setIntValues(values);
         return anim;
     }
 
+    /**
+     * @param values values
+     * @return ValueAnimator
+     */
     public static ValueAnimator ofFloat(float... values) {
         ValueAnimator anim = new ValueAnimator();
         anim.setFloatValues(values);
@@ -103,6 +198,7 @@ public class ValueAnimator extends Animator10 {
         anim.setEvaluator(evaluator);
         return anim;
     }
+
 
     public void setIntValues(int... values) {
         if (values == null || values.length == 0) {
@@ -172,7 +268,7 @@ public class ValueAnimator extends Animator10 {
             throw new IllegalArgumentException("Animators cannot have negative duration: " + duration);
         }
         mUnscaledDuration = duration;
-        mDuration = (long)(duration * sDurationScale);
+        mDuration = (long) (duration * sDurationScale);
         return this;
     }
 
@@ -286,7 +382,7 @@ public class ValueAnimator extends Animator10 {
     }
 
     public void setStartDelay(long startDelay) {
-        this.mStartDelay = (long)(startDelay * sDurationScale);
+        this.mStartDelay = (long) (startDelay * sDurationScale);
         mUnscaledStartDelay = startDelay;
     }
 
@@ -489,7 +585,7 @@ public class ValueAnimator extends Animator10 {
         if ((mStarted || mRunning) && mListeners != null) {
             if (!mRunning) {
                 notifyStartListeners();
-             }
+            }
             ArrayList<AnimatorListener> tmpListeners = (ArrayList<AnimatorListener>) mListeners.clone();
             int numListeners = tmpListeners.size();
             for (AnimatorListener tmpListener : tmpListeners) {
@@ -539,33 +635,33 @@ public class ValueAnimator extends Animator10 {
     boolean animationFrame(long currentTime) {
         boolean done = false;
         switch (mPlayingState) {
-        case RUNNING:
-        case SEEKED:
-            float fraction = mDuration > 0 ? (float)(currentTime - mStartTime) / mDuration : 1f;
-            if (fraction >= 1f) {
-                if (mCurrentIteration < mRepeatCount || mRepeatCount == INFINITE) {
-                    if (mListeners != null) {
-                        int numListeners = mListeners.size();
-                        for (AnimatorListener mListener : mListeners) {
-                            mListener.onAnimationRepeat(this);
+            case RUNNING:
+            case SEEKED:
+                float fraction = mDuration > 0 ? (float) (currentTime - mStartTime) / mDuration : 1f;
+                if (fraction >= 1f) {
+                    if (mCurrentIteration < mRepeatCount || mRepeatCount == INFINITE) {
+                        if (mListeners != null) {
+                            int numListeners = mListeners.size();
+                            for (AnimatorListener mListener : mListeners) {
+                                mListener.onAnimationRepeat(this);
+                            }
                         }
+                        if (mRepeatMode == REVERSE) {
+                            mPlayingBackwards = !mPlayingBackwards;
+                        }
+                        mCurrentIteration += (int) fraction;
+                        fraction = fraction % 1f;
+                        mStartTime += mDuration;
+                    } else {
+                        done = true;
+                        fraction = Math.min(fraction, 1.0f);
                     }
-                    if (mRepeatMode == REVERSE) {
-                        mPlayingBackwards = !mPlayingBackwards;
-                    }
-                    mCurrentIteration += (int)fraction;
-                    fraction = fraction % 1f;
-                    mStartTime += mDuration;
-                } else {
-                    done = true;
-                    fraction = Math.min(fraction, 1.0f);
                 }
-            }
-            if (mPlayingBackwards) {
-                fraction = 1f - fraction;
-            }
-            animateValue(fraction);
-            break;
+                if (mPlayingBackwards) {
+                    fraction = 1f - fraction;
+                }
+                animateValue(fraction);
+                break;
         }
 
         return done;
